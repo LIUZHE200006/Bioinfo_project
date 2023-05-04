@@ -1,0 +1,27 @@
+#시퀀싱 데이터 다운로드
+!wget -O - --no-check-certificate https://hyeshik.qbio.io/binfo/binfo1-datapack1.tar | tar -C /home/zliu/bioinfoproject -xf -
+!wget --no-check-certificate -O /home/zliu/bioinfoproject/binfo1-datapack1/gencode.gtf.gz http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/gencode.vM27.annotation.gtf.gz
+#다루기 쉽도록 Annotation 압축을 풉니다.
+!gunzip /home/zliu/bioinfoproject/binfo1-datapack1/gencode.gtf.gz
+#Transcript count table 마련하기
+%cd /home/zliu/bioinfoproject/binfo1-datapack1/ 
+!featureCounts -a gencode.gtf -o read-counts.txt *.bam 
+import pandas as pd
+cnts = pd.read_csv('read-counts.txt', sep='\t', comment='#', index_col=0)
+cnts.head()
+cnts['clip_enrichment'] = cnts['CLIP-35L33G.bam'] / cnts['RNA-control.bam']
+cnts['rden_change'] = (cnts['RPF-siLin28a.bam'] / cnts['RNA-siLin28a.bam']) / (cnts['RPF-siLuc.bam'] / cnts['RNA-siLuc.bam'])
+cnts.head()
+from matplotlib import pyplot as plt
+import numpy as np
+
+fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+ax.scatter(np.log2(cnts['clip_enrichment']),
+           np.log2(cnts['rden_change']))
+           
+           
+#Protein localization 반영하기
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+mouselocal = pd.read_csv('https://hyeshik.qbio.io/binfo/mouselocalization-20210507.txt', sep='\t')
+mouselocal.head()
