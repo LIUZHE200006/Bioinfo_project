@@ -3,6 +3,8 @@
 !wget --no-check-certificate -O /home/zliu/bioinfoproject/binfo1-datapack1/gencode.gtf.gz http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/gencode.vM27.annotation.gtf.gz
 #다루기 쉽도록 Annotation 압축을 풉니다.
 !gunzip /home/zliu/bioinfoproject/binfo1-datapack1/gencode.gtf.gz
+!md5sum /home/zliu/bioinfoproject/binfo1-datapack1/*
+!conda install -y subread
 #Transcript count table 마련하기
 %cd /home/zliu/bioinfoproject/binfo1-datapack1/ 
 !featureCounts -a gencode.gtf -o read-counts.txt *.bam 
